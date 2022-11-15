@@ -6,6 +6,7 @@ const {check} = require('express-validator')
 
 const authController = require('../controllers/authController')
 
+const auth = require('../mw/auth')
 
 
 router.post('/registration',[
@@ -22,5 +23,7 @@ router.post('/login',[
     check('password','Что-то пошло не так').notEmpty()
 ]
 ,authController.login)
+
+router.post('/test',auth,authController.test)
  
 module.exports = router
