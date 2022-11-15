@@ -36,8 +36,8 @@ class AuthController {
                 return res.status(400).json({message: 'Неправильный логин или пароль'})
             }
 
-            const token = jwt.sign({id: emailCheck[0].user_id,role: emailCheck[0].role},process.env.SECRETKEY,{expiresIn: '30m'})
-            const refreshToken = jwt.sign({id: emailCheck[0].user_id,role: emailCheck[0].role},process.env.REFRESHKEY,{expiresIn: '30d'})
+            const token = jwt.sign({id: emailCheck[0].user_id},process.env.SECRETKEY,{expiresIn: '30m'})
+            const refreshToken = jwt.sign({id: emailCheck[0].user_id},process.env.REFRESHKEY,{expiresIn: '30d'})
 
             const tokenData = parse(await request(`SELECT * FROM tokens WHERE user_id = "${emailCheck[0].user_id}"`))
 
