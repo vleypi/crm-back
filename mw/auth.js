@@ -9,7 +9,7 @@ module.exports = (req,res,next) =>{
         const token = req.headers.authorization.split(' ')[1]
         
         if(!token){
-            return res.status(403).json({mes: 'Un auth 1'})
+            return res.status(403).json({mes: 'auth error'})
         }
 
         const decoded = jwt.verify(token,process.env.SECRETKEY)
@@ -18,6 +18,6 @@ module.exports = (req,res,next) =>{
     }
     catch(err){
         console.log(err)
-        return res.status(403).json({mes: 'Un auth 2'})
+        return res.status(403).json({mes: 'auth error'})
     }
 }
