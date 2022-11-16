@@ -11,13 +11,14 @@ module.exports = (permissions) =>{
         try{
             
             const userRole = parse(await request(`SELECT * FROM users WHERE user_id = "${req.user.id}"`))
+
+            console.log(userRole)
             
             if(!userRole){
                 return res.status(403).json({mes: 'Un auth 2'})
             }
 
             const checkPermissions = parse(await request(`SELECT * from roles_and_permissions WHERE role_name = "${userRole[0].role}"`))
-            
             let hasPermission = false
             
             checkPermissions.forEach(permission =>{

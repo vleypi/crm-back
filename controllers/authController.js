@@ -3,10 +3,7 @@ const request = require('../settings/db')
 const jwt = require('jsonwebtoken');
 const shortid = require('shortid');
 const {validationResult} = require('express-validator')
-
-const parse = (result) =>{
-    return Object.values(JSON.parse(JSON.stringify(result)));
-}
+const parse = require('../settings/parse')
 
 class AuthController {
 
@@ -41,8 +38,7 @@ class AuthController {
 
             const tokenData = parse(await request(`SELECT * FROM tokens WHERE user_id = "${emailCheck[0].user_id}"`))
 
-            console.log(tokenData[0])
-            if(tokenData){
+            if(tokenData[0]){
                 request(`UPDATE tokens SET refreshToken = "${refreshToken}" where user_id ="${emailCheck[0].user_id}"`)
                 res.cookie('ref',tokenData[0].refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
             }
@@ -90,7 +86,7 @@ class AuthController {
 
             const id = shortid.generate()
 
-            const userAdd = "INSERT INTO `users` (`id`,`name`,`surname`,`phone`,`email`,`password`) VALUES('" + id + "','" + name + "','" + surname + "','"+ phone +"','" + email + "','" + hashedPassword + "')"
+            const userAdd = "INSERT INTO `users` (`user_id`,`name`,`surname`,`phone`,`email`,`password`) VALUES('" + id + "','" + name + "','" + surname + "','"+ phone +"','" + email + "','" + hashedPassword + "')"
 
             parse(await request(userAdd))
 
