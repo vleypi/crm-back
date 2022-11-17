@@ -29,6 +29,12 @@ router.get('/getRoles',auth,settingsController.getRoles)
 
 router.post('/deleteRoles',auth,settingsController.deleteRoles)
 
+router.get('/getStatuses',auth,settingsController.getStatuses)
+
+router.post('/addStatuses',auth,settingsController.addStatuses)
+
+router.post('/changeStatuses',auth,settingsController.changeStatuses)
+
 // router.post('/addRoles',auth,settingsController.addRoles)
 
 

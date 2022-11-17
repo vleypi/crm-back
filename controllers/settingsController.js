@@ -166,7 +166,10 @@ class SettingsController {
 
     async getStatuses(req,res){
         try{
+            const student_statuses = await parse(await request('SELECT * FROM students_statuses'))
+            const visit_statuses = await parse(await request('SELECT * FROM visit_statuses'))
 
+            return res.status(200).json({student_statuses,visit_statuses})
         }
         catch(err){
             console.log(err)
@@ -175,8 +178,21 @@ class SettingsController {
 
     async addStatuses(req,res){
         try{
+            const {type,status_id,status_name, status_color,status_type, status_desc, withdraw,pay,visited} = req.body
 
-        }
+            if(type === 'visit_statuses'){
+                parse(await request("INSERT INTO `visit_statuses` (`status_id`,`status_name`,`withdraw`,`pay`,`visited`,`status_color`) VALUES('" + shortid.generate() + "','" + status_name + "','" + withdraw + "','" + pay + "','" + visited +"','" + status_color + "')")) 
+            }
+            else if(type === 'students_statuses'){
+                console.log(status_color)
+                parse(await request("INSERT INTO `students_statuses` (`status_id`,`status_name`,`status_desc`,`status_type`,`status_color`) VALUES('" + shortid.generate() +"','" + status_name + "','" + status_desc + "','" + status_type + "','" + status_color + "')")) 
+            }
+            else{
+                return res.status(400).json({mes: 'Что-то пошло не так'})
+            }
+
+            return res.status(200).json({})
+        }   
         catch(err){
             console.log(err)
         }
@@ -184,7 +200,24 @@ class SettingsController {
 
     async changeStatuses(req,res){
         try{
+            const {type,status_id,status_name, status_color,status_type, status_desc, withdraw,pay,visited} = req.body
+            
+            const status = await parse(await request(`SELECT * FROM ${type} WHERE status_id = "${status_id}"`))[0]
 
+            if(!status){
+                return res.status(404).json({mes: 'Возможно такого статуса не существует'})
+            }
+
+            if(type === 'visit_statuses'){
+                parse(await request(`UPDATE ${type} SET status_name = "${status_name}", withdraw = "${withdraw}", pay = "${pay}" visited = "${visited}", status_color = "${status_color}" WHERE status_id = "${status_id}"`)) 
+            }
+            // else if(type === 'students_statuses'){
+            //     console.log(status_color)
+            //     parse(await request("INSERT INTO `students_statuses` (`status_id`,`status_name`,`status_desc`,`status_type`,`status_color`) VALUES('" + shortid.generate() +"','" + status_name + "','" + status_desc + "','" + status_type + "','" + status_color + "')")) 
+            // }
+            else{
+                return res.status(400).json({mes: 'Что-то пошло не так'})
+            }
         }
         catch(err){
             console.log(err)
