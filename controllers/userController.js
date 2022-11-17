@@ -13,14 +13,14 @@ class UserController {
             const user = await parse(await request(`SELECT user_id,name,surname,email,phone FROM users WHERE user_id = "${id}"`))[0]
         
             if(!user){
-                return res.status(400).json({message: 'bad req'})
+                return res.status(400).json({mes: 'bad req'})
             }
 
             return res.status(200).json({user})
             console.log(user)
         }
         catch(err){
-            return res.status(400).json({message: 'Bad request'})
+            return res.status(400).json({mes: 'Bad request'})
         }
     }
 
@@ -29,14 +29,14 @@ class UserController {
             const {ref} = req.cookies
 
             if(!ref){
-                return res.status(401).json({message: 'UnauthorizedRefresh'})
+                return res.status(401).json({mes: 'UnauthorizedRefresh'})
             }
             
             const userData = jwt.verify(ref,process.env.REFRESHKEY)
             const findDb = await parse(await request(`SELECT * FROM tokens WHERE refreshToken = "${ref}"`))
 
             if(!userData || !findDb){
-                return res.status(401).json({message: 'UnauthorizedRefresh'})
+                return res.status(401).json({mes: 'UnauthorizedRefresh'})
             }
 
             const token = jwt.sign({id: userData.id},process.env.SECRETKEY,{expiresIn: '30m'})
@@ -59,7 +59,7 @@ class UserController {
         }
         catch(err){
             console.log(err)
-            return res.status(401).json({message: 'UnauthorizedRefresh'})
+            return res.status(401).json({mes: 'UnauthorizedRefresh'})
         }
     }
 }
