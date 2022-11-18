@@ -10,7 +10,7 @@ class UserController {
     async auth(req,res){
         try{
             const id = req.user.id
-            const user = await parse(await request(`SELECT user_id,name,surname,email,phone FROM users WHERE user_id = "${id}"`))[0]
+            const user = await parse(await request(`SELECT user_id,name,surname,email,phone,role FROM users WHERE user_id = "${id}"`))[0]
         
             if(!user){
                 return res.status(400).json({mes: 'bad req'})
@@ -39,8 +39,8 @@ class UserController {
                 return res.status(401).json({mes: 'UnauthorizedRefresh'})
             }
 
-            const token = jwt.sign({id: userData.id},process.env.SECRETKEY,{expiresIn: '30m'})
-            const refreshToken = jwt.sign({id: userData.id},process.env.REFRESHKEY,{expiresIn: '30d'})
+            const token = jwt.sign({id: userData.id,role: userData.role},process.env.SECRETKEY,{expiresIn: '30m'})
+            const refreshToken = jwt.sign({id: userData.id,role: userData.role},process.env.REFRESHKEY,{expiresIn: '30d'})
         
             const tokenData = await parse(await request(`SELECT * FROM tokens WHERE user_id = "${userData.id}"`))[0]
 

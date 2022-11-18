@@ -22,7 +22,7 @@ class AuthController {
 
             if(!emailCheck.length){
                 return res.status(405).json({
-                    mes: 'Такого email не существует'
+                    mes: 'Неверный логин или пароль'
                 })
             }
 
@@ -33,8 +33,8 @@ class AuthController {
                 return res.status(400).json({message: 'Неправильный логин или пароль'})
             }
 
-            const token = jwt.sign({id: emailCheck[0].user_id},process.env.SECRETKEY,{expiresIn: '30m'})
-            const refreshToken = jwt.sign({id: emailCheck[0].user_id},process.env.REFRESHKEY,{expiresIn: '30d'})
+            const token = jwt.sign({id: emailCheck[0].user_id,role: emailCheck[0].role},process.env.SECRETKEY,{expiresIn: '30m'})
+            const refreshToken = jwt.sign({id: emailCheck[0].user_id,role: emailCheck[0].role},process.env.REFRESHKEY,{expiresIn: '30d'})
 
             const tokenData = parse(await request(`SELECT * FROM tokens WHERE user_id = "${emailCheck[0].user_id}"`))
 
@@ -72,7 +72,7 @@ class AuthController {
             }
 
 
-            const {password,name,surname,email,phone} = req.body
+            const {password,name,surname,email,phone,role} = req.body
 
             const emailCheck = await request(`SELECT * FROM users WHERE email = "${email}"`)
 
@@ -86,7 +86,7 @@ class AuthController {
 
             const id = shortid.generate()
 
-            const userAdd = "INSERT INTO `users` (`user_id`,`name`,`surname`,`phone`,`email`,`password`) VALUES('" + id + "','" + name + "','" + surname + "','"+ phone +"','" + email + "','" + hashedPassword + "')"
+            const userAdd = "INSERT INTO `users` (`user_id`,`name`,`surname`,`phone`,`email`,`password`,`role`) VALUES('" + id + "','" + name + "','" + surname + "','"+ phone +"','" + email + "','" + hashedPassword + "','" + role +"')"
 
             parse(await request(userAdd))
 

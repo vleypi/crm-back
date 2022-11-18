@@ -2,34 +2,35 @@ const jwt = require('jsonwebtoken')
 const request = require('../settings/db')
 const parse = require('../settings/parse')
 
-module.exports = (permissions) =>{
+module.exports = (roles) =>{
     return async (req,res,next)=>{
         if(req.method === "OPTIONS"){
             next()
         }
     
         try{
+            const token = req.cookies.ref || req.body.ref
             
-            const userRole = parse(await request(`SELECT * FROM users WHERE user_id = "${req.user.id}"`))
+            if(!token){
+                return res.status(403).json({mes: 'Un auth'})
+            } 
 
-            console.log(userRole)
-            
-            if(!userRole){
-                return res.status(403).json({mes: 'Un auth 2'})
-            }
+            const userRoles= jwt.verify(token,process.env.REFRESHKEY)
 
-            const checkPermissions = parse(await request(`SELECT * from roles_and_permissions WHERE role_name = "${userRole[0].role}"`))
-            let hasPermission = false
-            
-            checkPermissions.forEach(permission =>{
-                if(permissions.includes(permission.permission_name)){
-                    hasPermission = true
+            console.log(userRoles)
+            let hasRole = false
+
+            userRoles.forEach(role=>{
+                if(roles.includes(role)){
+                    hasRole = true
                 }
             })
 
-            if(!hasPermission){
-                return res.status(403).json({mes: 'Недостаточно прав'})
+            if(!hasRole){
+                return res.status(403).json({mes: 'un auth 2'})
             }
+
+
 
             next()
         }
