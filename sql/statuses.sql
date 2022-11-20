@@ -24,29 +24,42 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `lessons`
+-- Структура таблицы `statuses`
 --
 
-CREATE TABLE `lessons` (
-  `lesson_id` varchar(255) NOT NULL,
-  `lesson_name` varchar(255) NOT NULL,
-  `lesson_color` varchar(255) NOT NULL,
-  `lesson_status` int(255) NOT NULL,
-  `lesson_type` int(11) NOT NULL
+CREATE TABLE `statuses` (
+  `id` int(255) NOT NULL,
+  `status_name` varchar(255) NOT NULL,
+  `status_color` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `lessons`
+-- Дамп данных таблицы `statuses`
 --
 
-INSERT INTO `lessons` (`lesson_id`, `lesson_name`, `lesson_color`, `lesson_status`, `lesson_type`) VALUES
-('f5RK7-FSt', 'qweqw', '#e91e63', 1, 1),
-('1mjMU_Kk5', 'fdsf', '#f44336', 1, 1),
-('5kg09-jnk', 'qweq', '#f44336', 1, 1),
-('-3r7XtV9f', 'qweqw', '#e91e63', 1, 1),
-('irl4sxEaL', 'Анлийский', '#f44336', 1, 1),
-('vehuEk-ak', '12312', '#f44336', 1, 2),
-('nvbocuo_T', 'Английский', '#00bcd4', 1, 2);
+INSERT INTO `statuses` (`id`, `status_name`, `status_color`) VALUES
+(1, 'Активный', 'Green'),
+(2, 'В архиве', 'Red');
+
+--
+-- Индексы сохранённых таблиц
+--
+
+--
+-- Индексы таблицы `statuses`
+--
+ALTER TABLE `statuses`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT для сохранённых таблиц
+--
+
+--
+-- AUTO_INCREMENT для таблицы `statuses`
+--
+ALTER TABLE `statuses`
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

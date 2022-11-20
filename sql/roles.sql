@@ -24,29 +24,43 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `lessons`
+-- Структура таблицы `roles`
 --
 
-CREATE TABLE `lessons` (
-  `lesson_id` varchar(255) NOT NULL,
-  `lesson_name` varchar(255) NOT NULL,
-  `lesson_color` varchar(255) NOT NULL,
-  `lesson_status` int(255) NOT NULL,
-  `lesson_type` int(11) NOT NULL
+CREATE TABLE `roles` (
+  `id` int(255) NOT NULL,
+  `role_name` varchar(255) NOT NULL,
+  `role_description` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `lessons`
+-- Дамп данных таблицы `roles`
 --
 
-INSERT INTO `lessons` (`lesson_id`, `lesson_name`, `lesson_color`, `lesson_status`, `lesson_type`) VALUES
-('f5RK7-FSt', 'qweqw', '#e91e63', 1, 1),
-('1mjMU_Kk5', 'fdsf', '#f44336', 1, 1),
-('5kg09-jnk', 'qweq', '#f44336', 1, 1),
-('-3r7XtV9f', 'qweqw', '#e91e63', 1, 1),
-('irl4sxEaL', 'Анлийский', '#f44336', 1, 1),
-('vehuEk-ak', '12312', '#f44336', 1, 2),
-('nvbocuo_T', 'Английский', '#00bcd4', 1, 2);
+INSERT INTO `roles` (`id`, `role_name`, `role_description`) VALUES
+(1, 'Владелец', 'Полный доступ'),
+(2, 'Педагог', ''),
+(3, 'Ученик', '');
+
+--
+-- Индексы сохранённых таблиц
+--
+
+--
+-- Индексы таблицы `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT для сохранённых таблиц
+--
+
+--
+-- AUTO_INCREMENT для таблицы `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

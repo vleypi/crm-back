@@ -24,29 +24,27 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `lessons`
+-- Структура таблицы `lessons_user`
 --
 
-CREATE TABLE `lessons` (
+CREATE TABLE `lessons_user` (
+  `user_id` varchar(255) NOT NULL,
   `lesson_id` varchar(255) NOT NULL,
-  `lesson_name` varchar(255) NOT NULL,
-  `lesson_color` varchar(255) NOT NULL,
-  `lesson_status` int(255) NOT NULL,
-  `lesson_type` int(11) NOT NULL
+  `role` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Дамп данных таблицы `lessons`
+-- Дамп данных таблицы `lessons_user`
 --
 
-INSERT INTO `lessons` (`lesson_id`, `lesson_name`, `lesson_color`, `lesson_status`, `lesson_type`) VALUES
-('f5RK7-FSt', 'qweqw', '#e91e63', 1, 1),
-('1mjMU_Kk5', 'fdsf', '#f44336', 1, 1),
-('5kg09-jnk', 'qweq', '#f44336', 1, 1),
-('-3r7XtV9f', 'qweqw', '#e91e63', 1, 1),
-('irl4sxEaL', 'Анлийский', '#f44336', 1, 1),
-('vehuEk-ak', '12312', '#f44336', 1, 2),
-('nvbocuo_T', 'Английский', '#00bcd4', 1, 2);
+INSERT INTO `lessons_user` (`user_id`, `lesson_id`, `role`) VALUES
+('dasdad', '-3r7XtV9f', 'Ученик'),
+('fdfsdf', '-3r7XtV9f', 'Ученик'),
+('fdfsdf', 'irl4sxEaL', 'Ученик'),
+('dasdad', 'irl4sxEaL', 'Ученик'),
+('dasdad', 'vehuEk-ak', 'Ученик'),
+('fdfsdf', 'nvbocuo_T', 'Ученик'),
+('dasdad', 'nvbocuo_T', 'Ученик');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
