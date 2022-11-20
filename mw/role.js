@@ -15,13 +15,13 @@ module.exports = (roles) =>{
                 return res.status(403).json({mes: 'Un auth'})
             } 
 
-            const userRoles= jwt.verify(token,process.env.REFRESHKEY)
+            const userRoles = jwt.verify(token,process.env.REFRESHKEY)
 
             console.log(userRoles)
             let hasRole = false
 
-            userRoles.forEach(role=>{
-                if(roles.includes(role)){
+            roles.forEach(role=>{
+                if(role.includes(userRoles.role)){
                     hasRole = true
                 }
             })

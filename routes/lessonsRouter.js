@@ -9,6 +9,7 @@ const lessonsController = require('../controllers/lessonsController')
 const auth = require('../mw/auth')
 const role = require('../mw/role')
 
-router.post('/getLessons',lessonsController.getLessons)
+router.post('/setLessons',auth,lessonsController.setLessons)
+router.post('/getStudentsTeachers',auth,lessonsController.getStudentsTeachers)
  
 module.exports = router
