@@ -49,6 +49,16 @@ class PagesController {
             console.log(err)
         }
     }
+
+    async getTeachers(req,res) {
+        try{
+            const teachers = await parse(await request(`SELECT * FROM users WHERE role = "${'Педагог'}"`))
+            return res.status(200).json({teachers})
+        }
+        catch(err){
+            console.log()
+        }
+    }
 }
 
 module.exports = new PagesController()
