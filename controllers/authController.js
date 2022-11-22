@@ -63,8 +63,9 @@ class AuthController {
         }
     }
 
-    async registration(req,res,next) {
+    async setUser(req,res,next) {
         try{
+            console.log(112312)
             const validate = validationResult(req)
 
             if(!validate.isEmpty()){
@@ -72,24 +73,43 @@ class AuthController {
             }
 
 
-            const {password,name,surname,email,phone,role} = req.body
+            const {password,name,user_id,email,phone,role,gender} = req.body
 
             const emailCheck = await request(`SELECT * FROM users WHERE email = "${email}"`)
+
 
             if(parse(emailCheck).length){
                 return res.status(405).json({
                     mes: 'Этот email уже существует'
                 })
             }
-
+            
             const hashedPassword = await bcrypt.hash(password,7)
 
-            const id = shortid.generate()
+            if(!user_id){
 
-            const userAdd = "INSERT INTO `users` (`user_id`,`name`,`surname`,`phone`,`email`,`password`,`role`) VALUES('" + id + "','" + name + "','" + surname + "','"+ phone +"','" + email + "','" + hashedPassword + "','" + role +"')"
+                const id = shortid.generate()
 
-            parse(await request(userAdd))
+                const userAdd = "INSERT INTO `users` (`user_id`,`name`,`phone`,`email`,`password`,`gender`,`role`,`balance`) VALUES('" + id + "','" + name + "','"+ phone +"','"+ email +"','"+ hashedPassword +"','"+ gender +"','" + role +"','"+ 0 +"')"
 
+                parse(await request(userAdd))
+
+                return res.status(200).json({})
+            }
+            
+            const user = await parse(await request(`SELECT * FROM users WHERE user_id_id ="${user_id}"`))[0]
+    
+            if(user){
+                await parse(await request(`
+                    UPDATE users 
+                    SET name = "${name}",
+                        password = "${password}",
+                        email = "${email}",
+                        phone = "${phone}",
+                        gender = "${gender}"
+                    WHERE user_id ="${user_id}"`
+                ))
+            }
             
             return res.status(200).json({})
         }
