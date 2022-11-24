@@ -7,10 +7,61 @@ const parse = require('../settings/parse')
 
 class PagesController {
 
+    async getUser(req,res){
+        try{
+            
+
+            return user
+        }
+        catch(err){
+            return res.status(404).json({mes: 'Пользоатель не найден'})
+        }
+    }
+
     async getStudents(req,res) {
         try{
             const stundents = await parse(await request(`SELECT user_id,balance,name,surname,gender,phone,email,role FROM users WHERE role = "Ученик"`))
             return res.status(200).json({stundents})
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
+
+    async getStudentLessons(req,res){
+        try{
+
+            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${req.query.user_id}"`))[0]
+
+            if(!user){
+                return res.status(404).json({mes: 'Пользоатель не найден'})  
+            }
+
+            if(user.role != 'Ученик'){
+                return res.status(404).json({})
+            }
+
+            const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE user_id ="${req.query.user_id}" AND role = "Ученик"`))
+            
+            if(!lessons_user.length){
+                return res.status(200).json({lessons: []})
+            }
+
+            const lessons = []
+
+            await Promise.all(lessons_user.map(async (lesson_user,index)=>{
+                const lesson = parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${lesson_user.lesson_id}"`))[0]
+                lessons.push(lesson)
+            }))
+
+            await Promise.all(lessons.map(async (lesson,index)=>{
+                const users = parse(await request(`SELECT * FROM lessons_user WHERE lesson_id = "${lesson.lesson_id}"`))
+                const status = parse(await request(`SELECT * FROM statuses WHERE id = "${lesson.lesson_status}"`))[0]
+                lessons[index].students = users.filter(user=>user.role === 'Ученик').length
+                lessons[index].lesson_status = status
+            }))
+
+            return res.status(200).json({student: user,lessons})
         }
         catch(err){
             console.log(err)
