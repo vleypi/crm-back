@@ -11,7 +11,6 @@ const role = require('../mw/role')
 
 router.post('/setUser',[
     check('email','Не соотвествует email параметрам').isEmail(),
-    check('password','Минимальный размер пароля 7 символов').isLength({min: 7}),
     check('name','Что-то пошло не так').notEmpty(),
     check('gender','Что-то пошло не так').notEmpty(),
     check('phone','Что-то пошло не так').isLength({min: 11}),

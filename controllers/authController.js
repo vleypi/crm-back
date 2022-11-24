@@ -76,9 +76,11 @@ class AuthController {
             const {password,name,user_id,email,phone,role,gender} = req.body
 
             
-            const hashedPassword = await bcrypt.hash(password,7)
+            
 
             if(!user_id){
+                const hashedPassword = await bcrypt.hash(password,7)
+
                 const emailCheck = await request(`SELECT * FROM users WHERE email = "${email}"`)
 
 
@@ -100,6 +102,8 @@ class AuthController {
            
             
             const user = await parse(await request(`SELECT * FROM users WHERE user_id ="${user_id}"`))[0]
+
+            const newPassword = password ? await bcrypt.hash(password,7) : user.password
     
             if(user){
                 await parse(await request(`
@@ -108,7 +112,8 @@ class AuthController {
                         password = "${password}",
                         email = "${email}",
                         phone = "${phone}",
-                        gender = "${gender}"
+                        gender = "${gender}",
+                        password = "${newPassword}"
                     WHERE user_id ="${user_id}"`
                 ))
             }
