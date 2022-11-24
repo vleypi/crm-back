@@ -65,7 +65,7 @@ class AuthController {
 
     async setUser(req,res,next) {
         try{
-            console.log(112312)
+            
             const validate = validationResult(req)
 
             if(!validate.isEmpty()){
@@ -75,18 +75,18 @@ class AuthController {
 
             const {password,name,user_id,email,phone,role,gender} = req.body
 
-            const emailCheck = await request(`SELECT * FROM users WHERE email = "${email}"`)
-
-
-            if(parse(emailCheck).length){
-                return res.status(405).json({
-                    mes: 'Этот email уже существует'
-                })
-            }
             
             const hashedPassword = await bcrypt.hash(password,7)
 
             if(!user_id){
+                const emailCheck = await request(`SELECT * FROM users WHERE email = "${email}"`)
+
+
+                if(parse(emailCheck).length){
+                    return res.status(405).json({
+                        mes: 'Этот email уже существует'
+                    })
+                }
 
                 const id = shortid.generate()
 
@@ -96,8 +96,10 @@ class AuthController {
 
                 return res.status(200).json({})
             }
+
+           
             
-            const user = await parse(await request(`SELECT * FROM users WHERE user_id_id ="${user_id}"`))[0]
+            const user = await parse(await request(`SELECT * FROM users WHERE user_id ="${user_id}"`))[0]
     
             if(user){
                 await parse(await request(`

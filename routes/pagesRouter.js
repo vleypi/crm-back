@@ -16,6 +16,11 @@ router.get('/getTeachers',auth02,role(['Владелец']),pagesController.getT
 
 //[user_id]
 router.get('/getStudent/lessons',auth02,pagesController.getStudentLessons)
+router.get('/getTeacher/lessons',auth02,pagesController.getTeacherLessons)
 
- 
+
+//[lesson_id]
+router.get('/getLesson/participants',auth02,pagesController.getLessonParticipants)
+
+
 module.exports = router
