@@ -57,6 +57,7 @@ class LessonsController {
 
             const students = await parse(await request(`SELECT user_id,name,role FROM users WHERE role = "Ученик"`))
             const teachers = await parse(await request(`SELECT user_id,name,role FROM users WHERE role = "Педагог"`))
+
             res.status(200).json({
                 students:students.map((student)=>{
                     return {
