@@ -8,6 +8,7 @@ const lessonsRouter = require('./lessonsRouter')
 const pagesRouter = require('./pagesRouter')
 const statusesRouter = require('./statusesRouter')
 const blogRouter = require('./blogRouter')
+const scheduleRouter = require('./scheduleRouter')
 
 router.use('/auth', authRouter)
 router.use('/user',userRouter)
@@ -16,5 +17,6 @@ router.use('/lessons',lessonsRouter)
 router.use('/pages',pagesRouter)
 router.use('/statuses',statusesRouter)
 router.use('/blog',blogRouter)
+router.use('/schedule',scheduleRouter)
 
 module.exports = router 

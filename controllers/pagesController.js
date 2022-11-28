@@ -2,10 +2,32 @@ const bcrypt = require('bcryptjs')
 const request = require('../settings/db')
 const jwt = require('jsonwebtoken');
 const shortid = require('shortid');
-const {validationResult} = require('express-validator')
+const {validationResult, param} = require('express-validator')
 const parse = require('../settings/parse')
 
 class PagesController {
+
+    async getSchedule(req,res){
+        try{
+            const appointments = await parse(await request(`SELECT * FROM appointments`))
+
+            const lessons = await parse(await request(`SELECT * FROM lessons`))
+
+            return res.status(200).json({
+                appointments,
+                lessons: lessons.map(lesson=>{
+                    return {
+                        id: lesson.lesson_id,
+                        text: lesson.lesson_name,
+                        color: lesson.lesson_color
+                    }
+                })
+            })
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
 
     async getUser(req,res){
         try{
@@ -177,6 +199,8 @@ class PagesController {
 
             return res.status(200).json({participants,lesson})
     }
+
+    
 }
 
 module.exports = new PagesController()
