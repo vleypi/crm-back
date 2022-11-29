@@ -15,12 +15,12 @@ class LessonsController {
                 return res.status(400).json({mes: validate.errors[0].msg})
             }
             
-            const {lesson_id,lesson_name,lesson_color,lesson_type,lesson_teachers,lesson_students,lesson_status=1} = req.body
+            const {lesson_id,lesson_name,lesson_color,lesson_type,lesson_teachers,lesson_students,lesson_status=1,lesson_link} = req.body
 
            if(!lesson_id){
                 const lesson_id = shortid.generate()
 
-                await parse(await request("INSERT INTO `lessons` (`lesson_id`,`lesson_name`,`lesson_color`,`lesson_status`,`lesson_type`) VALUES('" + lesson_id + "','" + lesson_name + "','" + lesson_color + "','" + 1 + "','" + lesson_type +"')")) 
+                await parse(await request("INSERT INTO `lessons` (`lesson_id`,`lesson_name`,`lesson_color`,`lesson_status`,`lesson_type`,`lesson_link`) VALUES('" + lesson_id + "','" + lesson_name + "','" + lesson_color + "','" + 1 + "','" + lesson_type +"','"+ lesson_link +"')")) 
 
                 if(lesson_students.length){
                     lesson_students.map(async (student)=>{
@@ -40,7 +40,8 @@ class LessonsController {
                     SET lesson_color = "${lesson_color}",
                         lesson_name = "${lesson_name}",
                         lesson_status = "${lesson_status}",
-                        lesson_type = "${lesson_type}"
+                        lesson_type = "${lesson_type}",
+                        lesson_link = "${lesson_link}"
                     WHERE lesson_id = "${lesson_id}"
                 `)) 
            }

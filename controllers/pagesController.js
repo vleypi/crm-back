@@ -19,7 +19,8 @@ class PagesController {
                     return {
                         id: lesson.lesson_id,
                         text: lesson.lesson_name,
-                        color: lesson.lesson_color
+                        color: lesson.lesson_color,
+                        lesson_link:lesson.lesson_link
                     }
                 })
             })
