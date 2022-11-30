@@ -27,32 +27,18 @@ class ScheduleController {
 
     async changeAppointment(req,res){
         try{
-            const {title="",rRule="",startDate="",endDate="",lesson_id="",notes=""} = req.body.changes
-
-            const arrChanges = [title,rRule,startDate,endDate,lesson_id,notes] 
 
             Object.keys(req.body.changes).map((change,index)=>{
-                parse( request(`UPDATE appointments SET ${change} = "${req.body.changes[change]}" WHERE id = "${req.body.appointment_id}"`))
+                if(change == "title" || change == "lesson_id"){
+                    if(req.body.changes[change]){
+                        parse( request(`UPDATE appointments SET ${change} = "${req.body.changes[change]}" WHERE id = "${req.body.appointment_id}"`))
+                    }
+                }
+                else{
+                    parse( request(`UPDATE appointments SET ${change} = "${req.body.changes[change]}" WHERE id = "${req.body.appointment_id}"`))
+                }
             })
 
-            // arrChanges.map(async (change)=>{
-            //     if(change){
-            //         await parse(await request(`UPDATE appointments SET ${[c]}`))
-            //     }
-            // })
-            
-            // await parse(await request(`
-            //         UPDATE appointments
-            //         SET ${title && `title = "${title}"`}
-            //             ${rRule && `rRule = "${rRule}"`}
-            //             ${startDate && `startDate = "${startDate}"`}
-            //             ${endDate && `endDate = "${endDate}"`}
-            //             ${lesson_id && `lesson_id = "${lesson_id}"`}
-            //             ${notes && `notes = "${notes}"`}
-            //         WHERE id ="${req.body.appointment_id}"`
-            // ))
-
-            
             return res.status(200).json({})
         }   
         catch(err){

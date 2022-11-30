@@ -20,6 +20,7 @@
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.20",
+    "rrule": "^2.7.1",
     "shortid": "^2.2.16",
     "util": "^0.12.5"
   }

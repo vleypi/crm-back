@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const shortid = require('shortid');
 const {validationResult, param} = require('express-validator')
 const parse = require('../settings/parse')
+const {RRule} = require('rrule')
 
 class PagesController {
 
@@ -24,6 +25,48 @@ class PagesController {
                     }
                 })
             })
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
+
+    async getVisits(req,res){
+        try{
+            const {day,month,year,lesson_id} = req.query
+
+            const visit = await parse(await request(`SELECT * FROM visits WHERE lesson_id = "${lesson_id}" AND day="${day}" AND month="${month}" AND year="${year}"`))
+
+            if(visit.length){
+                return res.status(200).json({visit})
+            }
+
+            const appointment = await parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson_id}"`))[0]
+
+            const rule = RRule.fromString(appointment.rRule)
+
+            const addDays = (date, days) => {
+                const result = new Date(date);
+                result.setDate(result.getDate() + days);
+                return result
+            }
+
+            const checkVisitPage = rule.between(addDays(new Date(year,month,day),1),addDays(new Date(year,month,day),2))
+
+
+            if(checkVisitPage.length){
+                const visit_id = shortid.generate()
+
+                await parse(await request("INSERT INTO `visits` (`visit_id`,`lesson_id`,`day`,`month`,`year`) VALUES('" + visit_id + "','" + lesson_id + "','" + day + "','" + month + "','" + year + "')")) 
+            
+                const newVisit = await parse(await request(`SELECT * FROM visits WHERE visit_id = "${visit_id}"`))[0]
+
+                return res.status(200).json({newVisit})
+            }
+            else{
+                return res.status(404).json({})
+            }
+
         }
         catch(err){
             console.log(err)
