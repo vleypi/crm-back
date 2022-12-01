@@ -14,6 +14,7 @@ class PagesController {
 
             const lessons = await parse(await request(`SELECT * FROM lessons`))
 
+
             return res.status(200).json({
                 appointments,
                 lessons: lessons.map(lesson=>{
@@ -56,7 +57,29 @@ class PagesController {
                         participants.push(participant)
                     }))
 
-                    return res.status(200).json({participants,lesson})
+
+                    const statuses_visits = await parse(await request(`SELECT * FROM statuses_visits`))
+
+                    const visit = await parse(await request(`SELECT * FROM visits WHERE lesson_id = "${lesson_id}" AND day="${day}" AND month="${month}" AND year="${year}"`))[0]
+
+                    const visits_users = await parse(await request(`SELECT * FROM visits_users WHERE visit_id = "${visit.visit_id}"`))
+
+
+
+                    return res.status(200).json({
+                        participants,
+                        lesson,
+                        statuses_visits: statuses_visits.map((status)=>{
+                            return {
+                                value: status.status_id,
+                                status_id: status.status_id,
+                                status_color: status.status_color,
+                                label: status.status_name
+                            }
+                        }),
+                        visits_users,
+                        visit_id: visit.visit_id
+                    })
                 }
                 catch(err){
                     console.log(err)
@@ -70,7 +93,6 @@ class PagesController {
             }
 
             const appointment = await parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson_id}"`))[0]
-            console.log(appointment)
 
             const ruleStr = RRule.fromString(appointment.rRule)
             
