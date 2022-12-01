@@ -35,15 +35,46 @@ class PagesController {
         try{
             const {day,month,year,lesson_id} = req.query
 
+            const getLessonAndParticipants = async () => {
+                try{
+                    const lesson = await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${lesson_id}"`))[0]
+
+                    if(!lesson){
+                        return res.status(404).json({mes: 'Занятие не найдено'})  
+                    }
+
+                    const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id ="${lesson_id}"`))
+                    
+                    if(!lessons_user.length){
+                        return res.status(200).json({participants: [],lesson})
+                    }
+
+                    const participants = []
+
+                    await Promise.all(lessons_user.map(async (lesson_user,index)=>{
+                        const participant = parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${lesson_user.user_id}"`))[0]
+                        participants.push(participant)
+                    }))
+
+                    return res.status(200).json({participants,lesson})
+                }
+                catch(err){
+                    console.log(err)
+                }
+            }
+
             const visit = await parse(await request(`SELECT * FROM visits WHERE lesson_id = "${lesson_id}" AND day="${day}" AND month="${month}" AND year="${year}"`))
 
             if(visit.length){
-                return res.status(200).json({visit})
+                await getLessonAndParticipants()
             }
 
             const appointment = await parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson_id}"`))[0]
+            console.log(appointment)
 
-            const rule = RRule.fromString(appointment.rRule)
+            const ruleStr = RRule.fromString(appointment.rRule)
+            
+            ruleStr.options.dtstart = new Date(year,month,day,0,0)
 
             const addDays = (date, days) => {
                 const result = new Date(date);
@@ -51,17 +82,14 @@ class PagesController {
                 return result
             }
 
-            const checkVisitPage = rule.between(addDays(new Date(year,month,day),1),addDays(new Date(year,month,day),2))
-
+            const checkVisitPage = ruleStr.between(new Date(year,month,day),addDays(new Date(year,month,day),2))
 
             if(checkVisitPage.length){
                 const visit_id = shortid.generate()
 
                 await parse(await request("INSERT INTO `visits` (`visit_id`,`lesson_id`,`day`,`month`,`year`) VALUES('" + visit_id + "','" + lesson_id + "','" + day + "','" + month + "','" + year + "')")) 
             
-                const newVisit = await parse(await request(`SELECT * FROM visits WHERE visit_id = "${visit_id}"`))[0]
-
-                return res.status(200).json({newVisit})
+                await getLessonAndParticipants()
             }
             else{
                 return res.status(404).json({})
