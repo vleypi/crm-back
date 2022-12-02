@@ -123,17 +123,6 @@ class PagesController {
         }
     }
 
-    async getUser(req,res){
-        try{
-            
-
-            return user
-        }
-        catch(err){
-            return res.status(404).json({mes: 'Пользоатель не найден'})
-        }
-    }
-
     async getStudents(req,res) {
         try{
             const stundents = await parse(await request(`SELECT user_id,balance,name,surname,gender,phone,email,role FROM users WHERE role = "Ученик"`))
@@ -228,7 +217,34 @@ class PagesController {
             console.log(err)
         }
     }
+    
+    async getStudentSchedule(req,res){
+        try{
+            const {user_id} = req.query
 
+            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${user_id}"`))[0]
+            
+            if(!user){
+                return res.status(404).json({mes: 'User not found'})
+            }
+
+            const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE user_id = "${user_id}"`))
+
+            const appointments = []
+
+            await Promise.all(lessons_user.map(async (lesson_user,index)=>{
+                const appointment = parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson_user.lesson_id}"`))[0]
+                if(appointment){
+                    appointments.push(appointment)
+                }
+            }))
+
+            return res.status(200).json({appointments,student: user})
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
 
     async getTeacherLessons(req,res){
         try{

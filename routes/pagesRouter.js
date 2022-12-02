@@ -18,6 +18,8 @@ router.get('/getVisits',auth02,pagesController.getVisits)
 
 //[user_id]
 router.get('/getStudent/lessons',auth02,pagesController.getStudentLessons)
+router.get('/getStudent/schedule',auth02,pagesController.getStudentSchedule)
+
 router.get('/getTeacher/lessons',auth02,pagesController.getTeacherLessons)
 
 
