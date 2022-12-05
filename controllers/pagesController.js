@@ -266,14 +266,29 @@ class PagesController {
                 }
             }))
 
-            return res.status(200).json({appointments,student: user,lessons: lessons.map(lesson=>{
-                return {
-                    id: lesson.lesson_id,
-                    text: lesson.lesson_name,
-                    color: lesson.lesson_color,
-                    lesson_link:lesson.lesson_link
-                }
-            })})
+            return res.status(200).json({
+                appointments: appointments.map(appointment=>{
+                    return {
+                        id: appointment.id,
+                        rRule: appointment.rRule,
+                        startDate: appointment.startDate,
+                        endDate: appointment.endDate,
+                        lesson_id: appointment.lesson_id,
+                        notes: appointment.notes,
+                        allDay: 0,
+                        title: lessons.find((lesson)=>lesson.lesson_id === appointment.lesson_id).lesson_name
+                    }
+                }),
+                lessons: lessons.map(lesson=>{
+                    return {
+                        id: lesson.lesson_id,
+                        text: lesson.lesson_name,
+                        color: lesson.lesson_color,
+                        lesson_link:lesson.lesson_link
+                    }
+                }),
+                student: user
+            })
         }
         catch(err){
             console.log(err)
@@ -310,14 +325,29 @@ class PagesController {
                 }
             }))
 
-            return res.status(200).json({appointments,teacher: user,lessons: lessons.map(lesson=>{
-                return {
-                    id: lesson.lesson_id,
-                    text: lesson.lesson_name,
-                    color: lesson.lesson_color,
-                    lesson_link:lesson.lesson_link
-                }
-            })})
+            return res.status(200).json({
+                appointments: appointments.map(appointment=>{
+                    return {
+                        id: appointment.id,
+                        rRule: appointment.rRule,
+                        startDate: appointment.startDate,
+                        endDate: appointment.endDate,
+                        lesson_id: appointment.lesson_id,
+                        notes: appointment.notes,
+                        allDay: 0,
+                        title: lessons.find((lesson)=>lesson.lesson_id === appointment.lesson_id).lesson_name
+                    }
+                }),
+                lessons: lessons.map(lesson=>{
+                    return {
+                        id: lesson.lesson_id,
+                        text: lesson.lesson_name,
+                        color: lesson.lesson_color,
+                        lesson_link:lesson.lesson_link
+                    }
+                }),
+                teacher: user
+            })
         }
         catch(err){
             console.log(err)
