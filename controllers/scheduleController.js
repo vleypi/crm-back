@@ -7,16 +7,17 @@ const parse = require('../settings/parse')
 
 
 class ScheduleController {
+
     async addAppointment(req,res){
         try{
             console.log(req.body)
             const {title="",rRule="",startDate="",endDate="",lesson_id="",notes="",allDay=false} = req.body.appointment
 
-            if(!startDate || !endDate || !title){
+            if(!startDate || !endDate){
                 return res.status(400).json({})
             }
 
-            await parse(await request("INSERT INTO `appointments` (`id`,`title`,`rRule`,`startDate`,`endDate`,`lesson_id`,`notes`,`allDay`) VALUES('" + shortid.generate() + "','" + title + "','" + rRule + "','" + startDate + "','" + endDate + "','" + lesson_id + "','" + notes + "','" + allDay + "')")) 
+            await parse(await request("INSERT INTO `appointments` (`id`,`rRule`,`startDate`,`endDate`,`lesson_id`,`notes`,`allDay`) VALUES('" + shortid.generate() + "','" + rRule + "','" + startDate + "','" + endDate + "','" + lesson_id + "','" + notes + "','" + allDay + "')")) 
             
             return res.status(200).json({})
         }   
@@ -29,7 +30,7 @@ class ScheduleController {
         try{
 
             Object.keys(req.body.changes).map((change,index)=>{
-                if(change == "title" || change == "lesson_id"){
+                if(change == "lesson_id"){
                     if(req.body.changes[change]){
                         parse( request(`UPDATE appointments SET ${change} = "${req.body.changes[change]}" WHERE id = "${req.body.appointment_id}"`))
                     }

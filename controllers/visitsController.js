@@ -11,6 +11,7 @@ class VisitsController {
         try{
             const {option,student,visit_id,lesson_id} = req.body
 
+
             const visit = await parse(await request(`SELECT * FROM visits WHERE visit_id = "${visit_id}"`))[0]
 
             if(!visit){

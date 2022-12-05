@@ -21,7 +21,7 @@ router.get('/getStudent/lessons',auth02,pagesController.getStudentLessons)
 router.get('/getStudent/schedule',auth02,pagesController.getStudentSchedule)
 
 router.get('/getTeacher/lessons',auth02,pagesController.getTeacherLessons)
-
+router.get('/getTeacher/schedule',auth02,pagesController.getTeacherSchedule)
 
 //[lesson_id]
 router.get('/getLesson/participants',auth02,pagesController.getLessonParticipants)
