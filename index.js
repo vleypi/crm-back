@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser')
 dotenv.config()
 const PORT = process.env.PORT || 5001
 const router = require('./routes/index')
+const fileUpload = require('express-fileupload');
 
 const cors = require('cors')
 
@@ -16,6 +17,17 @@ app.use(express.json({
     extended: true
 }))
 app.use(cookieParser())
+
+app.use(
+    fileUpload({
+        limits: {
+            fileSize: 10000000,
+        },
+        abortOnLimit: true,
+    })
+);
+
+app.use('/static', express.static('public'))
 
 app.use('/api',router)
 
