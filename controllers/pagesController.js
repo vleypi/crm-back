@@ -4,15 +4,28 @@ const jwt = require('jsonwebtoken');
 const shortid = require('shortid');
 const {validationResult, param} = require('express-validator')
 const parse = require('../settings/parse')
-const {RRule} = require('rrule')
+const {RRule, rrulestr} = require('rrule')
 
 class PagesController {
 
     async getSchedule(req,res){
         try{
-            const appointments = await parse(await request(`SELECT * FROM appointments`))
+            let appointments = []
 
-            const lessons = await parse(await request(`SELECT * FROM lessons`))
+            let lessons = []
+
+            if(req.user.role == 'Владелец'){
+                appointments = await parse(await request(`SELECT * FROM appointments`))
+                lessons = await parse(await request(`SELECT * FROM lessons`))
+            }
+            else if(req.user.role == 'Педагог'){            
+                lessons = await parse(await request(`SELECT * FROM lessons WHERE user_id = "${req.user.id}"`))
+
+                await Promise.all(lessons.map(async (lesson,index)=>{
+                    const appointment = parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson.lesson_id}"`))[0]
+                    appointments.push(appointment)
+                }))
+            }
             
             return res.status(200).json({
                 appointments: appointments.map(appointment=>{
@@ -46,74 +59,7 @@ class PagesController {
         try{
             const {day,month,year,lesson_id} = req.query
 
-            const getLessonAndParticipants = async () => {
-                try{
-                    const lesson = await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${lesson_id}"`))[0]
-
-                    if(!lesson){
-                        console.log('Занятие не найдено')
-                        return res.status(404).json({mes: 'Занятие не найдено'})  
-                    }
-
-                    const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id ="${lesson_id}"`))
-                    
-                    if(!lessons_user.length){
-                        return res.status(200).json({participants: [],lesson})
-                    }
-
-                    const participants = []
-
-                    await Promise.all(lessons_user.map(async (lesson_user,index)=>{
-                        const participant = parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${lesson_user.user_id}"`))[0]
-                        participants.push(participant)
-                    }))
-
-                    const statuses_visits = await parse(await request(`SELECT * FROM statuses_visits`))
-
-                    const visit = await parse(await request(`SELECT * FROM visits WHERE lesson_id = "${lesson_id}" AND day="${day}" AND month="${month}" AND year="${year}" AND appointment_id = "${appointment.id}"`))[0]
-
-                    const visits_users = await parse(await request(`SELECT * FROM visits_users WHERE visit_id = "${visit.visit_id}"`))
-
-
-                    return res.status(200).json({
-                        participants,
-                        lesson,
-                        statuses_visits: statuses_visits.map((status)=>{
-                            return {
-                                value: status.status_id,
-                                status_id: status.status_id,
-                                status_color: status.status_color,
-                                label: status.status_name
-                            }
-                        }),
-                        visits_users,
-                        visit_id: visit.visit_id
-                    })
-                }
-                catch(err){
-                    return res.status(404).json({})
-                }
-            }
-            const appointment = await parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson_id}"`))[0]
-
-            const visit = await parse(await request(`SELECT * FROM visits WHERE lesson_id = "${lesson_id}" AND day="${day}" AND month="${month}" AND year="${year}" AND appointment_id = "${appointment.id}"`))
-
-            if(visit.length){
-                await getLessonAndParticipants()
-                return
-            }
-            if(!appointment.rRule){
-                const visit_id = shortid.generate()
-
-                await parse(await request("INSERT INTO `visits` (`visit_id`,`lesson_id`,`appointment_id`,`day`,`month`,`year`) VALUES('" + visit_id + "','" + lesson_id + "','"+ appointment.id +"','" + day + "','" + month + "','" + year + "')")) 
-
-                await getLessonAndParticipants()
-                return
-            }
-
-            const ruleStr = RRule.fromString(appointment.rRule)
-            
-            ruleStr.options.dtstart = new Date(year,month,day,0,0)
+            const appointments = await parse(await request(`SELECT * FROM appointments`))
 
             const addDays = (date, hours) => {
                 const result = new Date(date);
@@ -121,20 +67,57 @@ class PagesController {
                 return result
             }
 
-            const checkVisitPage = ruleStr.between(ruleStr.options.dtstart,addDays(ruleStr.options.dtstart,23))
+            const appointmentsArr = []
 
+            appointments.map((appointment)=>{
+                if(appointment.rRule){
+                    const rule = RRule.fromString(appointment.rRule)
+                    rule.options.dtstart = new Date(year,month,day)
+                    
+                    const dates = rule.between(addDays(rule.options.dtstart,0),addDays(new Date(year,month,day),23))
 
-            if(checkVisitPage.length > 0){
-                const visit_id = shortid.generate()
+                    if(dates.length){
+                        appointmentsArr.push(appointment)
+                    }
+                }
+                else{
+                    const appointmentDate = new Date(appointment.endDate)
+                    const appointmentDay = appointmentDate.getDate()
+                    const appointmentMonth = appointmentDate.getMonth()
+                    const appointmentYear = appointmentDate.getFullYear()
 
-                await parse(await request("INSERT INTO `visits` (`visit_id`,`lesson_id`,`appointment_id`,`day`,`month`,`year`) VALUES('" + visit_id + "','" + lesson_id + "','"+ appointment.id +"','" + day + "','" + month + "','" + year + "')")) 
+                    if(appointmentDay == day && appointmentMonth == month && appointmentYear == year){
+                        appointmentsArr.push(appointment)
+                    }
+                }
+            })
+
+            if(lesson_id){
+                const lesson = await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${lesson_id}"`))[0]
+
+                if(!lesson){
+                    return res.status(404).json({})
+                }
+
+                const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id ="${req.query.lesson_id}"`))
             
-                await getLessonAndParticipants()
+                if(!lessons_user.length){
+                    return res.status(200).json({appointments: appointmentsArr,lesson,participants: []})
+                }
+
+                const participants = []
+
+                await Promise.all(lessons_user.map(async (lesson_user,index)=>{
+                    const participant = parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${lesson_user.user_id}"`))[0]
+                    participants.push(participant)
+                }))
+
+                return res.status(200).json({appointments: appointmentsArr,lesson,participants})
             }
             else{
-                return res.status(404).json({})
+                return res.status(200).json({appointments: appointmentsArr,lesson: {},participants: []})
             }
-
+            
         }
         catch(err){
             console.log(err)

@@ -13,7 +13,7 @@ router.get('/getStudents',auth02,role(['Владелец','Педагог']),pag
 router.get('/getLessons',auth02,role(['Владелец']),pagesController.getLessons)
 router.get('/getStatuses',auth02,role(['Владелец','Педагог']),pagesController.getStatuses)
 router.get('/getTeachers',auth02,role(['Владелец']),pagesController.getTeachers)
-router.get('/getSchedule',auth02,role(['Владелец']),pagesController.getSchedule)
+router.get('/getSchedule',auth02,role(['Владелец','Педагог']),pagesController.getSchedule)
 router.get('/getVisits',auth02,pagesController.getVisits)
 
 //[user_id]
