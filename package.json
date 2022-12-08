@@ -24,6 +24,8 @@
     "nodemon": "^2.0.20",
     "rrule": "^2.7.1",
     "shortid": "^2.2.16",
+    "socket.io": "^4.5.4",
+    "unique-array-objects": "^2.1.0",
     "util": "^0.12.5"
   }
 }

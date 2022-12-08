@@ -10,7 +10,7 @@ const statusesRouter = require('./statusesRouter')
 const blogRouter = require('./blogRouter')
 const scheduleRouter = require('./scheduleRouter')
 const visitsRouter = require('./visitsRouter')
-
+const profileRouter = require('./profileRouter')
 
 router.use('/auth', authRouter)
 router.use('/user',userRouter)
@@ -19,6 +19,7 @@ router.use('/lessons',lessonsRouter)
 router.use('/pages',pagesRouter)
 router.use('/statuses',statusesRouter)
 router.use('/blog',blogRouter)
+router.use('/profile',profileRouter)
 router.use('/schedule',scheduleRouter)
 router.use('/visits',visitsRouter)
 

@@ -24,8 +24,10 @@ class BlogController {
     async uploadImg(req,res){
         try{
             const { image } = req.files;
-            
+
             if (!image) return res.sendStatus(400);
+
+            console.log(image)
 
             const name = Math.random()*100000000000000000;
 

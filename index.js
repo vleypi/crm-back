@@ -1,12 +1,14 @@
 const express = require('express')
 const app = express()
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
+const socket = require('./socket/index')
 const dotenv = require('dotenv')
 const cookieParser = require('cookie-parser')
 dotenv.config()
 const PORT = process.env.PORT || 5001
 const router = require('./routes/index')
 const fileUpload = require('express-fileupload');
-
 const cors = require('cors')
 
 app.use(cors({
@@ -17,6 +19,8 @@ app.use(express.json({
     extended: true
 }))
 app.use(cookieParser())
+
+
 
 app.use(
     fileUpload({
@@ -31,4 +35,7 @@ app.use('/static', express.static('public'))
 
 app.use('/api',router)
 
-app.listen(PORT,()=>console.log(PORT))
+app.set('socketio',io)
+socket(app)
+
+server.listen(PORT,()=>console.log(PORT))

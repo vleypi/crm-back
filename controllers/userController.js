@@ -10,7 +10,7 @@ class UserController {
     async auth(req,res){
         try{
             const id = req.user.id
-            const user = await parse(await request(`SELECT user_id,name,surname,email,phone,role FROM users WHERE user_id = "${id}"`))[0]
+            const user = await parse(await request(`SELECT user_id,name,surname,email,phone,role,avatar FROM users WHERE user_id = "${id}"`))[0]
         
             if(!user){
                 return res.status(400).json({mes: 'bad req'})
