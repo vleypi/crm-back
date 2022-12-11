@@ -9,6 +9,102 @@ const uab = require('unique-array-objects')
 
 class PagesController {
 
+    async getEditor(req,res){
+        try{
+
+            const {blog_id} = req.query
+
+
+            if(!blog_id){
+                return res.status(200).json({blog: {header: '',blocks: []},role: req.user.role})
+
+            }
+            else if(blog_id){
+                const blog = await parse(await request(`SELECT * FROM blog WHERE blog_id = "${blog_id}"`))[0]
+
+                if(!blog.blog_id){
+                    return res.status(404).json({})
+                }
+
+                return res.status(200).json({blog: {header: blog.header,blocks: JSON.parse(blog.blocks),blog_id: blog.blog_id},role: req.user.role})
+            }
+        }
+        catch(err){
+            return res.status(404).json({})
+        }
+    }
+
+    async getPosts(req,res){
+        try{
+            const blog = await parse(await request(`SELECT * FROM blog ORDER BY date DESC`))
+
+            const posts = []
+
+            await Promise.all(blog.map(async (post,index)=>{
+                posts.push({
+                    blog_id: post.blog_id,
+                    header: post.header,
+                    image: JSON.parse(post.blocks).find((item)=>item.type == 'image')?.data.file.url  
+                })
+            }))
+
+
+            return res.status(200).json({posts})
+        }
+        catch(err){
+            console.log(err)
+            return res.status(404).json({})
+        }
+    }
+
+    async getBlog(req,res){
+        try{
+            const blog = await parse(await request(`SELECT * FROM blog ORDER BY date DESC`))
+
+            const posts = []
+
+            await Promise.all(blog.map(async (post,index)=>{
+                posts.push({
+                    blog_id: post.blog_id,
+                    header: post.header,
+                    blocks: JSON.parse(post.blocks),
+                    date: post.date
+                })
+            }))
+
+
+            return res.status(200).json({posts})
+        }
+        catch(err){
+            console.log(err)
+            return res.status(404).json({})
+        }
+    }
+
+    async getPost(req,res){
+        try{
+            const blog = await parse(await request(`SELECT * FROM blog ORDER BY date DESC`))
+
+            const posts = []
+
+            await Promise.all(blog.map(async (post,index)=>{
+                posts.push({
+                    blog_id: post.blog_id,
+                    header: post.header,
+                    blocks: JSON.parse(post.blocks),
+                    date: post.date
+                })
+            }))
+
+
+            return res.status(200).json({posts})
+        }
+        catch(err){
+            console.log(err)
+            return res.status(404).json({})
+        }
+    }
+
     async getProfile(req,res){
         try{
             
@@ -19,6 +115,22 @@ class PagesController {
             }
             
             return res.status(200).json({user,role: req.user.role})
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
+
+    async getRole(req,res){
+        try{
+            
+            const user = await parse(await request(`SELECT user_id,name,avatar FROM users WHERE user_id = "${req.user.id}"`))[0]
+
+            if(!user){
+                return res.status(404).json({})
+            }
+            
+            return res.status(200).json({role: req.user.role})
         }
         catch(err){
             console.log(err)
@@ -36,20 +148,23 @@ class PagesController {
                 appointments = await parse(await request(`SELECT * FROM appointments`))
                 lessons = await parse(await request(`SELECT * FROM lessons`))
             }
-            else if(req.user.role == 'Педагог'){   
+            else if(req.user.role == 'Педагог' || req.user.role == 'Ученик'){   
                 
                 const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE user_id = "${req.user.id}"`))
                 
                 
-
                 await Promise.all(lessons_user.map(async (lesson_user,index)=>{
                     const lesson = await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${lesson_user.lesson_id}"`))[0]
                     lessons.push(lesson)
                 }))
 
                 await Promise.all(lessons.map(async (lesson,index)=>{
-                    const appointment = parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson.lesson_id}"`))[0]
-                    appointments.push(appointment)
+                    const appointmentsUser = parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson.lesson_id}"`))
+                    await Promise.all(appointmentsUser.map(async (appointment,index)=>{
+                        if(appointment){
+                            appointments.push(appointment)
+                        }
+                    }))
                 }))
             }
             
@@ -84,9 +199,30 @@ class PagesController {
 
     async getVisits(req,res){
         try{
-            const {day,month,year,lesson_id} = req.query
+            const {day,month,year,appointment_id} = req.query
 
-            const appointments = await parse(await request(`SELECT * FROM appointments`))
+            let appointments = []
+
+            if(req.user.role == 'Владелец'){
+                appointments = await parse(await request(`SELECT * FROM appointments`))
+            }
+            else if(req.user.role == 'Педагог' || req.user.role == 'Ученик'){
+                const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE  user_id = "${req.user.id}"`))
+                
+                await Promise.all(lessons_user.map(async (lesson_user,index)=>{
+
+                    const appointmentsUser = parse(await request(`SELECT * FROM appointments WHERE lesson_id = "${lesson_user.lesson_id}"`))
+                    await Promise.all(appointmentsUser.map(async (appointment,index)=>{
+                        if(appointment){
+                            appointments.push(appointment)
+                        }
+                    }))
+                }))
+            }
+            else{
+                return res.status(404).json({})
+            }
+            
 
             const addDays = (date, hours) => {
                 const result = new Date(date);
@@ -119,14 +255,32 @@ class PagesController {
                 }
             })
 
-            if(lesson_id){
-                const lesson = await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${lesson_id}"`))[0]
+            
 
-                if(!lesson){
+            await Promise.all(appointmentsArr.map(async (appointment,index)=>{
+                const lesson = await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${appointment.lesson_id}"`))[0]
+                appointmentsArr[index].lesson_name = lesson.lesson_name 
+            }))
+
+
+            
+            if(appointment_id){
+                const appointment = await parse(await request(`SELECT * FROM appointments WHERE id = "${appointment_id}"`))[0]
+
+                const lesson =  await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${appointment.lesson_id}"`))[0]
+
+                if(!appointment){
                     return res.status(404).json({})
                 }
 
-                const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id ="${req.query.lesson_id}"`))
+                let lessons_user = []
+
+                if(req.user.role == 'Ученик'){
+                    lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id ="${appointment.lesson_id}" AND user_id = "${req.user.id}"`))
+                }
+                else{
+                    lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id ="${appointment.lesson_id}"`))
+                }
             
                 if(!lessons_user.length){
                     return res.status(200).json({appointments: appointmentsArr,lesson,participants: [],role: req.user.role})
@@ -139,12 +293,31 @@ class PagesController {
                     participants.push(participant)
                 }))
 
-                return res.status(200).json({appointments: appointmentsArr,lesson,participants,role: req.user.role})
+                const visits_users = await parse(await request(`SELECT * FROM visits_users WHERE appointment_id = "${appointment_id}" AND lesson_id = "${appointment.lesson_id}" AND day = "${day}" AND year = "${year}" AND month = "${month}"`))
+
+                const statuses_visits = await parse(await request(`SELECT * FROM statuses_visits`))
+
+
+                return res.status(200).json({
+                    appointments: appointmentsArr,
+                    lesson,participants,
+                    visits_users,
+                    role: req.user.role,
+                    statuses_visits: statuses_visits.map((status)=>{
+                        return {
+                            status_id: status.status_id,
+                            status_name: status.status_name,
+                            status_color: status.status_color,
+                            label: status.status_name,
+                            value: status.status_id,
+                        }
+                    })
+                })
             }
             else{
-                return res.status(200).json({appointments: appointmentsArr,lesson: {},participants: [],role: req.user.role})
-            }
-            
+                return res.status(200).json({appointments: appointmentsArr,lesson: {},participants: [],role: req.user.role,visits_users: []})
+            } 
+
         }
         catch(err){
             console.log(err)
@@ -161,19 +334,28 @@ class PagesController {
             }
             else if(req.user.role == 'Педагог'){   
                 
-                const lessons_user = await parse(await request(`SELECT * FROM lessons_user WHERE user_id = "${req.user.id}"`))
+                const lessons = await parse(await request(`SELECT * FROM lessons_user WHERE user_id = "${req.user.id}"`))
 
-                const lesson_student = []
+                const lesson_user = []
 
-                await Promise.all(lessons_user.map(async (lesson_user,index)=>{
-                    const student = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id = "${lesson_user.lesson_id}"`))[0]
-                    lesson_student.push(student)
+                await Promise.all(lessons.map(async (lesson,index)=>{
+                    const users = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id = "${lesson.lesson_id}" AND role = "Ученик"`))
+                    lesson_user.push(users)
                 }))
 
-                await Promise.all(lesson_student.map(async (lesson_student,index)=>{
-                    const student = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${lesson_student.user_id}"`))[0]
-                    stundents.push(student)
+                const sortedUsers = []
+
+                await Promise.all(lesson_user.map(async (lesson,index)=>{
+                    await Promise.all(lesson.map(async (l,index)=>{
+                        if(l.user_id != req.user.id){
+                            sortedUsers.push(l)
+                        }
+                    }))
                 }))
+                await Promise.all(sortedUsers.map(async (user,index)=>{
+                    stundents.push(await parse(await request(`SELECT user_id,name,gender,role,avatar FROM users WHERE user_id = "${user.user_id}"`))[0])
+                }))
+
             }
 
 
@@ -259,7 +441,7 @@ class PagesController {
     async getStudentLessons(req,res){
         try{
 
-            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${req.query.user_id}"`))[0]
+            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role,avatar FROM users WHERE user_id = "${req.query.user_id}"`))[0]
 
             if(!user){
                 return res.status(404).json({mes: 'Пользоатель не найден',role: req.user.role})  
@@ -300,7 +482,7 @@ class PagesController {
         try{
             const {user_id} = req.query
 
-            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${user_id}"`))[0]
+            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role,avatar FROM users WHERE user_id = "${user_id}"`))[0]
             
             if(!user){
                 return res.status(404).json({mes: 'User not found',role: req.user.role})
@@ -360,7 +542,7 @@ class PagesController {
         try{
             const {user_id} = req.query
 
-            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${user_id}"`))[0]
+            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role,avatar FROM users WHERE user_id = "${user_id}"`))[0]
             
             if(!user){
                 return res.status(404).json({mes: 'User not found',role: req.user.role})
@@ -419,7 +601,7 @@ class PagesController {
     async getTeacherLessons(req,res){
         try{
 
-            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${req.query.user_id}"`))[0]
+            const user = await parse(await request(`SELECT user_id,balance,name,gender,phone,email,role,avatar FROM users WHERE user_id = "${req.query.user_id}"`))[0]
 
             if(!user){
                 return res.status(404).json({mes: 'Пользоатель не найден',role: req.user.role})  
@@ -486,24 +668,27 @@ class PagesController {
 
     async getChats(req,res){
         try{
+            const chat_roster = await parse(await request(`SELECT * FROM chat_roster WHERE user_id = "${req.user.id}"`))
 
-            const chats = await parse(await request(`SELECT * FROM chat`))
+            const chats = []
 
-
+            await Promise.all(chat_roster.map(async (chat,index)=>{
+                const res = parse(await request(`SELECT * FROM chat WHERE chat_id = "${chat.chat_id}"`))[0]
+                chats.push(res)
+            }))
 
             await Promise.all(chats.map(async (chat,index)=>{
                 const lastMessage = parse(await request(`SELECT * FROM chat_messages WHERE chat_id = "${chat.chat_id}" ORDER BY message_date DESC LIMIT 1`))[0]
                 if(lastMessage){
                     const user = parse(await request(`SELECT user_id,balance,name,gender,phone,email,role,avatar FROM users WHERE user_id = "${lastMessage.user_id}"`))[0]
 
-                    lastMessage.user_name = user.name
-                    lastMessage.user_avatar = user.avatar
+                    lastMessage.name = user.name
+                    lastMessage.avatar = user.avatar
                     chats[index].lastMessage = lastMessage
                 }
             }))
 
-
-            return res.status(200).json({chats,role: req.user.role})
+            return res.status(200).json({chats,role: req.user.role,user_id: req.user.id})
         }
         catch(err){
             console.log(err)
@@ -527,6 +712,7 @@ class PagesController {
             const check_roster = chat_roster.find(user=>user.user_id === req.user.id)
 
             if(!check_roster){
+                console.log(21)
                 return res.status(404).json({})
             }
 
@@ -550,14 +736,63 @@ class PagesController {
 
            chat.messages = messages
 
-            return res.status(200).json({chat,users,user_id: req.user.id})
+            return res.status(200).json({chat,user_id: req.user.id,users})
         }
         catch(err){
             console.log(err)
         }
     }
     
-    
+    async getUsersForChat(req,res){
+        try{
+            let users = []
+
+            if(req.user.role == 'Владелец'){
+                users = await parse(await request(`SELECT user_id,name,gender,role,avatar FROM users WHERE user_id != "${req.user.id}"`))
+            }
+            else if(req.user.role == 'Педагог'){
+                const lessons = await parse(await request(`SELECT * FROM lessons_user WHERE user_id = "${req.user.id}"`))
+
+                const lesson_user = []
+
+                await Promise.all(lessons.map(async (lesson,index)=>{
+                    const users = await parse(await request(`SELECT * FROM lessons_user WHERE lesson_id = "${lesson.lesson_id}"`))
+                    lesson_user.push(users)
+                }))
+
+                const sortedUsers = []
+
+                await Promise.all(lesson_user.map(async (lesson,index)=>{
+                    await Promise.all(lesson.map(async (l,index)=>{
+                        if(l.user_id != req.user.id){
+                            sortedUsers.push(l)
+                        }
+                    }))
+                }))
+                await Promise.all(sortedUsers.map(async (user,index)=>{
+                    users.push(await parse(await request(`SELECT user_id,name,gender,role,avatar FROM users WHERE user_id = "${user.user_id}"`))[0])
+                }))
+
+            }
+
+
+            return res.status(200).json({
+                users: uab(users).map((user)=>{
+                    return {
+                        value: user.user_id,
+                        label: user.name,
+                        name: user.name,
+                        user_id: user.user_id,
+                        avatar: user.avatar
+                    }
+                })
+            })
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
+
 }
 
 module.exports = new PagesController()

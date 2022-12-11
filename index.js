@@ -16,7 +16,8 @@ app.use(cors({
     credentials: true
 }))
 app.use(express.json({
-    extended: true
+    extended: true,
+    limit: '50mb'
 }))
 app.use(cookieParser())
 

@@ -45,6 +45,11 @@ class StatusesController {
                     DELETE FROM statuses_visits 
                     WHERE status_id ="${status_id}"`
             ))
+
+            await parse(await request(`
+                DELETE FROM visits_users
+                WHERE status_id = "${status_id}"
+            `))
             
             return res.status(200).json({})
         }   

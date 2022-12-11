@@ -10,12 +10,30 @@ class ScheduleController {
 
     async addAppointment(req,res){
         try{
-            console.log(req.body)
-            const {title="",rRule="",startDate="",endDate="",lesson_id="",notes="",allDay=false} = req.body.appointment
+            let {title="",rRule="",startDate="",endDate="",lesson_id="",notes="",allDay=false} = req.body.appointment
 
             if(!startDate || !endDate){
                 return res.status(400).json({})
             }
+
+            const startDateCheck = {
+                day: new Date(startDate).getDate(),
+                month: new Date(startDate).getMonth()
+            }
+
+            const endDateCheck = {
+                day: new Date(endDate).getDate(),
+                month: new Date(endDate).getMonth()
+            }
+
+            const lesson = await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${lesson_id}"`))
+
+            if(rRule){
+                const days = ["SU",'MO',"TU","WE","TH","FR","SA"]
+                rRule = rRule+';BYDAY='+days[new Date(endDate).getDay()]
+    
+            }
+
 
             await parse(await request("INSERT INTO `appointments` (`id`,`rRule`,`startDate`,`endDate`,`lesson_id`,`notes`,`allDay`) VALUES('" + shortid.generate() + "','" + rRule + "','" + startDate + "','" + endDate + "','" + lesson_id + "','" + notes + "','" + allDay + "')")) 
             

@@ -33,7 +33,7 @@ class AuthController {
                 return res.status(400).json({message: 'Неправильный логин или пароль'})
             }
 
-            const token = jwt.sign({id: emailCheck[0].user_id,role: emailCheck[0].role},process.env.SECRETKEY,{expiresIn: '30m'})
+            const token = jwt.sign({id: emailCheck[0].user_id,role: emailCheck[0].role},process.env.SECRETKEY,{expiresIn: '30d'})
             const refreshToken = jwt.sign({id: emailCheck[0].user_id,role: emailCheck[0].role},process.env.REFRESHKEY,{expiresIn: '30d'})
 
             const tokenData = parse(await request(`SELECT * FROM tokens WHERE user_id = "${emailCheck[0].user_id}"`))
@@ -47,7 +47,7 @@ class AuthController {
                 res.cookie('ref',refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
             }
 
-            res.cookie('acc',token, {maxAge: 900000, httpOnly: true})
+            res.cookie('acc',token, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
 
             return res.status(200).json({
                 name: emailCheck[0].name,
@@ -122,6 +122,24 @@ class AuthController {
         }
         catch(err){
             console.log(err)
+        }
+    }
+
+    async logout(req,res) {
+        try{
+
+            await parse(await request(`DELETE FROM tokens WHERE user_id = "${req.user.id}"`))
+
+            res.cookie('acc','', {maxAge: -1, httpOnly: true})
+            res.cookie('ref','', {maxAge: -1, httpOnly: true})
+
+            return res.status(200).json({})
+        }
+        catch(err){
+            res.cookie('acc','', {maxAge: -1, httpOnly: true})
+            res.cookie('ref','', {maxAge: -1, httpOnly: true})
+            
+            return res.status(200).json({})
         }
     }
 

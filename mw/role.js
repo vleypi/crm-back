@@ -17,7 +17,6 @@ module.exports = (roles) =>{
 
             const userRoles = jwt.verify(token,process.env.REFRESHKEY)
 
-            console.log(userRoles)
             let hasRole = false
 
             roles.forEach(role=>{

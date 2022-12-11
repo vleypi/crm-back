@@ -23,6 +23,7 @@ router.post('/login',[
 ]
 ,authController.login)
 
-router.post('/test',auth,role(['DELETE']),authController.test)
+router.post('/logout',auth,authController.logout)
+
  
 module.exports = router

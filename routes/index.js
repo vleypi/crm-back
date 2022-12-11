@@ -11,6 +11,7 @@ const blogRouter = require('./blogRouter')
 const scheduleRouter = require('./scheduleRouter')
 const visitsRouter = require('./visitsRouter')
 const profileRouter = require('./profileRouter')
+const chatRouter = require('./chatRouter')
 
 router.use('/auth', authRouter)
 router.use('/user',userRouter)
@@ -22,5 +23,6 @@ router.use('/blog',blogRouter)
 router.use('/profile',profileRouter)
 router.use('/schedule',scheduleRouter)
 router.use('/visits',visitsRouter)
+router.use('/chat',chatRouter)
 
-module.exports = router 
+module.exports = router
