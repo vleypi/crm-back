@@ -34,6 +34,10 @@ app.use(
 
 app.use('/static', express.static('public'))
 
+app.get('/',(req,res)=>{
+    return res.status(200).json({"test": "test"})
+})
+
 app.use('/api',router)
 
 app.set('socketio',io)
