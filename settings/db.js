@@ -4,8 +4,8 @@ const util = require('util');
 const connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : '',
-  database : 'crm'
+  password : process.env.PASSWORD,
+  database : process.env.DATABASE
 });
  
 connection.connect();
