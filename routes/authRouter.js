@@ -17,11 +17,7 @@ router.post('/setUser',[
     check('phone','Что-то пошло не так').isLength({max: 11}),
 ],authController.setUser)
 
-router.post('/login',[
-    check('email','Что-то пошло не так').notEmpty(),
-    check('password','Что-то пошло не так').notEmpty()
-]
-,authController.login)
+router.post('/login',authController.login)
 
 router.post('/logout',auth,authController.logout)
 
