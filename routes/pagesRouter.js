@@ -14,7 +14,7 @@ router.get('/getPost',pagesController.getPost)
 
 router.get('/getProfile',auth02,role(['Владелец','Педагог','Ученик']),pagesController.getProfile)
 router.get('/getEditor',auth02,role(['Владелец']),pagesController.getEditor)
-router.get('/getPosts',pagesController.getPosts)
+// router.get('/getPosts',pagesController.getPosts)
 router.get('/getRole',auth02,pagesController.getRole)
 router.get('/getStudents',auth02,role(['Владелец','Педагог']),pagesController.getStudents)
 router.get('/getSchedule',auth02,role(['Владелец','Педагог','Ученик']),pagesController.getSchedule)
