@@ -8,8 +8,7 @@ module.exports = (req,res,next) =>{
     try{
         
         // const token = req.body.acc ? req.body.acc : req.body.data.acc
-        console.log(req)
-        const refresh = req.body.ref ? req.body.ref : req.body.data.ref
+        const refresh = req.body.ref ? req.body.ref : ''
 
         if(!refresh){
             return res.status(401).json({message: 'UnauthorizedToken'})
