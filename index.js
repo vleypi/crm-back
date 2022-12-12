@@ -12,7 +12,7 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors')
 
 app.use(cors({
-    origin: ['http://localhost:3000'],
+    origin: ['https://crm-puce.vercel.app'],
     credentials: true
 }))
 app.use(express.json({
