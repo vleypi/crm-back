@@ -54,7 +54,7 @@ class BlogController {
             return res.status(200).json({
                 "success" : 1,
                 "file": {
-                    "url" : `http://localhost:5001/static/blog/${name}.png`,
+                    "url" : `http://62.113.96.105:5001/static/blog/${name}.png`,
                 },
                 "stretched": true
             });

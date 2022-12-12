@@ -9,12 +9,12 @@ dotenv.config()
 const PORT = process.env.PORT || 5001
 const router = require('./routes/index')
 const fileUpload = require('express-fileupload');
-const cors = require('cors')
+// const cors = require('cors')
 
-app.use(cors({
-    origin: ['https://crm-puce.vercel.app'],
-    credentials: true
-}))
+// app.use(cors({
+//     origin: ['http://localhost:3000'],
+//     credentials: true
+// }))
 app.use(express.json({
     extended: true,
     limit: '50mb'
@@ -33,10 +33,6 @@ app.use(
 );
 
 app.use('/static', express.static('public'))
-
-app.get('/',(req,res)=>{
-    return res.status(200).json({"test": "test"})
-})
 
 app.use('/api',router)
 
