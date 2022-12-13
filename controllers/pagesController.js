@@ -34,28 +34,28 @@ class PagesController {
         }
     }
 
-    // async getPosts(req,res){
-    //     try{
-    //         const blog = await parse(await request(`SELECT * FROM blog ORDER BY date DESC`))
+    async getPosts(req,res){
+        try{
+            const blog = await parse(await request(`SELECT * FROM blog ORDER BY date DESC`))
 
-    //         const posts = []
+            const posts = []
 
-    //         await Promise.all(blog.map(async (post,index)=>{
-    //             posts.push({
-    //                 blog_id: post.blog_id,
-    //                 header: post.header,
-    //                 image: JSON.parse(post.blocks).find((item)=>item.type == 'image')?.data.file.url  
-    //             })
-    //         }))
+            await Promise.all(blog.map(async (post,index)=>{
+                posts.push({
+                    blog_id: post.blog_id,
+                    header: post.header,
+                    image: JSON.parse(post.blocks).find((item)=>item.type == 'image') ? JSON.parse(post.blocks).find((item)=>item.type == 'image').data.file.url  : ''
+                })
+            }))
 
 
-    //         return res.status(200).json({posts})
-    //     }
-    //     catch(err){
-    //         console.log(err)
-    //         return res.status(404).json({})
-    //     }
-    // }
+            return res.status(200).json({posts})
+        }
+        catch(err){
+            console.log(err)
+            return res.status(404).json({})
+        }
+    }
 
     async getBlog(req,res){
         try{

@@ -9,7 +9,6 @@ class AuthController {
 
     async login(req,res) {
         try{
-            console.log(req)
             const validate = validationResult(req)
 
             if(!validate.isEmpty()){
