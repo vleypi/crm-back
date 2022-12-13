@@ -38,6 +38,8 @@ class PagesController {
         try{
             const blog = await parse(await request(`SELECT * FROM blog ORDER BY date DESC`))
 
+            console.log(blog)
+
             const posts = []
 
             await Promise.all(blog.map(async (post,index)=>{
