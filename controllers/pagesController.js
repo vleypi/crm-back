@@ -38,7 +38,7 @@ class PagesController {
         try{
             const blog = await parse(await request(`SELECT * FROM blog ORDER BY date DESC`))
 
-            console.log(blog)
+            console.log(blog,2)
 
             const posts = []
 
