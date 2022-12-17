@@ -12,7 +12,7 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors')
 
 app.use(cors({
-    origin: ['http://62.113.96.105:3000'],
+    origin: ['http://localhost:3000'],
     credentials: true
 }))
 app.use(express.json({
