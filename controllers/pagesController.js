@@ -38,8 +38,6 @@ class PagesController {
         try{
             const blog = await parse(await request(`SELECT * FROM blog ORDER BY date DESC`))
 
-            console.log(blog,2)
-
             const posts = []
 
             await Promise.all(blog.map(async (post,index)=>{
@@ -49,9 +47,6 @@ class PagesController {
                     image: JSON.parse(post.blocks).find((item)=>item.type == 'image') ? JSON.parse(post.blocks).find((item)=>item.type == 'image').data.file.url  : ''
                 })
             }))
-
-            console.log(posts)
-
 
             return res.status(200).json({posts})
         }
@@ -644,7 +639,7 @@ class PagesController {
 
     async getLessonParticipants(req,res){
             const lesson = await parse(await request(`SELECT * FROM lessons WHERE lesson_id = "${req.query.lesson_id}"`))[0]
-
+            
             if(!lesson){
                 return res.status(404).json({mes: 'Занятие не найдено',role: req.user.role})  
             }
@@ -665,7 +660,6 @@ class PagesController {
                 const participant = parse(await request(`SELECT user_id,balance,name,gender,phone,email,role FROM users WHERE user_id = "${lesson_user.user_id}"`))[0]
                 participants.push(participant)
             }))
-            console.log(participants)
 
             return res.status(200).json({participants,lesson,role: req.user.role})
     }

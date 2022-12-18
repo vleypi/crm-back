@@ -24,6 +24,8 @@ class BlogController {
         try{
             const {blocks,header,blog_id} = req.body
 
+            
+
 
             if(blog_id && header && blocks.length){
                 await parse(await request(`UPDATE blog SET header="${header}", blocks='${JSON.stringify(blocks)}' WHERE blog_id = "${blog_id}"`) )
