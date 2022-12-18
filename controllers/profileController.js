@@ -12,7 +12,6 @@ class ProfileController {
         try{
             const { image } = req.files;
 
-            console.log(image)
             
             if (!image) return res.sendStatus(400);
 

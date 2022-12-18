@@ -17,7 +17,7 @@ class AuthController {
 
             const {password,email,remember} = req.body
 
-            console.log(req.body)
+          
             const emailCheck = await parse(await request(`SELECT * FROM users WHERE email = "${email}"`))
 
             if(!emailCheck.length){

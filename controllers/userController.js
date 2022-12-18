@@ -17,7 +17,6 @@ class UserController {
             }
 
             return res.status(200).json({user})
-            console.log(user)
         }
         catch(err){
             return res.status(400).json({mes: 'Bad request'})

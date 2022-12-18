@@ -29,7 +29,6 @@ module.exports = (app) =>{
                 
                 socket.join(groupsForJoin)
 
-                console.log(user_id)
 
             }
             catch(err){
@@ -56,7 +55,7 @@ module.exports = (app) =>{
                     stream.end();
                 }
                 else{
-                    console.log(mimeFile)
+                    
                 }
 
 
